@@ -59,7 +59,7 @@ export class View1 extends Component {
         console.log("onItemSaving id => " + this.state.selectedItem.id);
 
         this.setState({
-            editing: false
+            loading: true
         });
     }
 
@@ -132,6 +132,11 @@ class NoteDetail extends Component {
 }
 
 class NoteEditor extends Component {
+    /*
+    constructor(props){
+        super(props);
+    }
+    */
     render() {
         const { loading, selectedItem, onItemSaving, onItemDeleting, onItemChange } = this.props;
         const { id, title, content } = selectedItem;
