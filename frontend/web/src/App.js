@@ -54,7 +54,7 @@ class App extends Component {
             style={{ lineHeight: '64px' }}
             onSelect={(e) => this.onViewSelected(e.key)}
           >
-            <Menu.Item key="View1" selected={true}>View 1</Menu.Item>
+            <Menu.Item key="View1" >View 1</Menu.Item>
             <Menu.Item key="View2" >View 2</Menu.Item>
             <Menu.Item key="View3" >View 3</Menu.Item>
           </Menu>
