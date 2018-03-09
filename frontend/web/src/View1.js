@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Icon, Button, Input, List, Layout } from 'antd';
+import { Spin, Card, Icon, Button, Input, List, Layout } from 'antd';
 const { Header, Sider, Content } = Layout;
 const { TextArea } = Input;
 
@@ -10,6 +10,7 @@ export class View1 extends Component {
         this.state = {
             items: [],
             loading: true,
+            editing: false,
             selectedItem: null
         };
     }
@@ -26,11 +27,18 @@ export class View1 extends Component {
     }
 
     onItemDeleting(id) {
-        console.log("onItemDeleting id => " + id)
+        console.log("onItemDeleting id => " + id);
+    }
+
+    onItemEditing() {
+        console.log("onItemEditing");
+        this.setState({
+            editing: true
+        })
     }
 
     onItemSelecting(id) {
-        console.log("onItemSelecting id => " + id)
+        console.log("onItemSelecting id => " + id);
         this.setState({
             selectedItem: {
                 id: 2,
@@ -49,19 +57,19 @@ export class View1 extends Component {
 
     onItemSaving() {
         console.log("onItemSaving id => " + this.state.selectedItem.id);
+
+        this.setState({
+            editing: false
+        });
     }
 
     render() {
         const { items, loading, selectedItem } = this.state;
         return (
-            <Layout>
-                <Layout>
-                    <Sider style={{ backgroundColor: 'white', paddingBottom: '10px' }}>
-                        <Button><Icon type="file-add" />New Item </Button>
-                    </Sider>
-                </Layout>
+            <Spin spinning={loading} >
                 <Layout>
                     <Sider style={{ backgroundColor: 'white', paddingRight: '10px' }} >
+                        <Button><Icon type="file-add" />New Item </Button>
                         <NoteList
                             items={items}
                             loading={loading}
@@ -70,25 +78,33 @@ export class View1 extends Component {
                         />
                     </Sider>
                     <Content style={{ padding: "10px" }}>
-                        <NoteEditor
-                            selectedItem={selectedItem}
-                            onItemChange={item => this.onItemChange(item)}
-                            onItemSaving={() => this.onItemSaving()}
-                            onItemDeleting={id => this.onItemDeleting(id)}
-                        />
+                        {this.state.editing &&
+                            <NoteEditor
+                                selectedItem={selectedItem}
+                                onItemChange={item => this.onItemChange(item)}
+                                onItemSaving={() => this.onItemSaving()}
+                                onItemDeleting={id => this.onItemDeleting(id)}
+                            />
+                        }
+                        {!this.state.editing &&
+                            <NoteDetail
+                                selectedItem={selectedItem}
+                                onItemEditing={() => this.onItemEditing()}
+                            />
+                        }
+
                     </Content>
                 </Layout>
-            </Layout>
+            </Spin>
         );
     }
 }
 
 class NoteList extends Component {
     render() {
-        const { loading, items, onItemDeleting, onItemSelecting } = this.props;
+        const { items, onItemDeleting, onItemSelecting } = this.props;
         return (
             <List
-                loading={loading}
                 itemLayout="horizontal"
                 dataSource={items}
                 renderItem={item =>
@@ -103,6 +119,18 @@ class NoteList extends Component {
     }
 }
 
+class NoteDetail extends Component {
+    render() {
+        const { selectedItem, onItemEditing } = this.props;
+        const { title, content } = selectedItem;
+        return (
+            <Card title={title} extra={<Button onClick={() => onItemEditing()} ><Icon type="edit" />Edit</Button>} >
+                {content}
+            </Card>
+        );
+    }
+}
+
 class NoteEditor extends Component {
     render() {
         const { loading, selectedItem, onItemSaving, onItemDeleting, onItemChange } = this.props;
@@ -112,7 +140,6 @@ class NoteEditor extends Component {
                 <div style={{ paddingBottom: '10px' }}>
                     <Input
                         placeholder={'enter title'}
-                        disabled={loading}
                         defaultValue={title}
                         onChange={(e) => onItemChange({ ...selectedItem, title: e.target.value })} />
                 </div>
@@ -120,7 +147,6 @@ class NoteEditor extends Component {
                     <TextArea
                         placeholder={'enter content'}
                         rows={8}
-                        disabled={loading}
                         defaultValue={content}
                         onChange={(e) => onItemChange({ ...selectedItem, content: e.target.value })}
                     />
@@ -134,8 +160,7 @@ class NoteEditor extends Component {
                     &nbsp;
                     <Button
                         type="primary"
-                        onClick={() => onItemSaving()}
-                        disabled={loading} >
+                        onClick={() => onItemSaving()}>
                         <Icon type="save" />Save
                         </Button>
                 </div>
